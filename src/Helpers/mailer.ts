@@ -6,12 +6,20 @@ export const sendEmail=async({email,emailtype,userID}:any)=>{
     try{
         const hashedTokken = await bcryptjs.hash(userID.toString(),10)
         if(emailtype ==="VERIFY")
-        { await User.findByIdAndUpdate(userID,
-          {verifyToken:hashedTokken,verifyTokenExpiry:Date.now()+ 360000})
+        {  
+           const updateUser = await User.findByIdAndUpdate(userID,{
+            $set:{ 
+                 verifyToken:hashedTokken,
+                 verifyTokenExpiry:new Date(Date.now()+3600000)//expiry in 1 houurs
+                }
+           })
         }
         else if(emailtype ==='RESET')
-        {await User.findbyIDandUpdata(userID,
-         {forgotPasswordToken:hashedTokken,forgotPasswordTokenExpiry:Date.now()+ 360000})
+        {  await User.findByIdAndUpdate(userID,
+          {$set:
+          {forgotPasswordToken:hashedTokken,
+           forgotPasswordTokenExpiry:new Date(Date.now()+3600000)//expiry in 1 houurs
+          }})
         }
         else{
 
@@ -32,12 +40,11 @@ export const sendEmail=async({email,emailtype,userID}:any)=>{
             subject: emailtype==='VERIFY' ? "verify four email " : "Reset your passsword",
             // text:'',
             html:`<p>Click <a href="${process.env.DOMAIN}
-            /varifyemail?token=${hashedTokken}">here</a> to ${emailtype === "VERIFY" ? "verify your email" :
+            /verifyemail?token=${hashedTokken}">here</a> to ${emailtype === "VERIFY" ? "verify your email" :
            "reset your password"}
             or copy and paste the link below in your browser.
             <br>
-            ${process.env.DOMAIN}
-            /varifyemail?token=${hashedTokken}
+            ${process.env.DOMAIN}/verifyemail?token=${hashedTokken}
            </p>`,
           }
           const mailResponce = await transport.sendMail(mailOptions)
