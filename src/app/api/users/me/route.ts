@@ -5,12 +5,9 @@ import { GetDataFromToken } from "@/Helpers/getdatafromtoken";
 import {NextRequest,NextResponse} from 'next/server';
 connect()
 //not working properly
-export async function POST(request:NextRequest) {
-//extrat data from token
+export async function GET(request:NextRequest) {
    const Userid = await GetDataFromToken(request);
-   console.log("get data fom token",Userid);   
-   const user = User.findOne({_id:Userid}).select("-password")
-   console.log("serch in DB ",user);
+   const user =await User.findById({_id:Userid}).select("-password");
    
    if(!user)
    {

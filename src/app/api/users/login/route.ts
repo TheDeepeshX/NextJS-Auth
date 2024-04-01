@@ -11,20 +11,18 @@ export async function POST(request:NextRequest) {
         const reqBody = await request.json()
         const { username,email,password} = reqBody
         //Validation 
-        console.log(reqBody);
-        await User.findOne({email})
-        if(!User){
+        var  user =  await User.findOne({email})
+        if(!user){
           return NextResponse.json({error:"User Dose not exist"},{status:400})
         }
-       console.log("User Exist");
-       const validPassword = bcryptjs.compare(password,User.password)        
+      const validPassword = bcryptjs.compare(password,user.password)        
        if(!validPassword)
        { return NextResponse.json({error:"check Your credential"},{status:400})
        } 
        const tokenData={
-        id:User._id,
-        username:User.username,
-        email:User.email
+        id:user._id,
+        username:user.username,
+        email:user.email
        }
        const token = await jwt.sign(tokenData,process.env.TOKEN_SECRET!,{expiresIn:'1h'})
        const response=NextResponse.json({Message:"Logged IN Sucessfully",suess:true})
